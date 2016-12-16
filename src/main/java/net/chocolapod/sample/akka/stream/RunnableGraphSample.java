@@ -42,7 +42,7 @@ public class RunnableGraphSample {
 
         // Source を作る
 
-        final Source<String, NotUsed> in = Source.from(Arrays.asList("chunk01", "chunk02", "chunk03", "chunk04", "chunk05"));
+        final Source<String, NotUsed> source = Source.from(Arrays.asList("chunk01", "chunk02", "chunk03", "chunk04", "chunk05"));
 
         // Sink を作る
 
@@ -103,7 +103,7 @@ public class RunnableGraphSample {
          * RunnableGraph を定義する
          */
         final RunnableGraph<CompletionStage<List<String>>> runnableGraph = RunnableGraph.fromGraph(GraphDSL.create(sink, (builder, out) -> {
-            final Outlet<String> source = builder.add(in).out();
+            final Outlet<String> in = builder.add(source).out();
             // Broadcast は両方に流す（1 つの chunk が 2 つ流れる）
             final UniformFanOutShape<String, String> broadcast = builder.add(Broadcast.create(2));
             // Balance は片方に流す
@@ -113,7 +113,7 @@ public class RunnableGraphSample {
             final UniformFanInShape<String, String> merge2 = builder.add(Merge.create(2));
 
             // Broadcast したのちに合流させる
-            builder.from(source).via(builder.add(f1.async())).toFanOut(broadcast);
+            builder.from(in).via(builder.add(f1.async())).toFanOut(broadcast);
 
             builder.from(broadcast).via(builder.add(f2.async())).toFanIn(merge1);
             builder.from(broadcast).via(builder.add(f3.async())).toFanIn(merge1);
