@@ -139,6 +139,7 @@ public class CustomGraphSample {
                                 complete(out);
                             } else {
                                 push(out, chunks.remove(0));
+                                // すでに別の要素を書き込んでいます、と言われたら emit() を検討するとよい
                             }
                         }
                     });
